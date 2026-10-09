@@ -1,0 +1,87 @@
+diffusion_lora:
+  name: DiffusionLoRAGenerationSkill
+  description: Train a SAR text-caption LoRA and generate augmented images through qinglong_trainer scripts.
+  target_count: 20
+  prompt_count: 20
+  num_repeats: 1
+  output_name_prefix: saga_lora
+  stage_dataset: false
+  strip_generation_args_from_caption: true
+  adapter:
+    project_root: myproject/qinglong_trainer_29b
+    conda_env: sd3
+    default_model_family: flux
+    output_root: output
+    logging_dir: logs
+    train_scripts:
+      flux: sd-scripts/flux_train_network.py
+      sd3: sd-scripts/sd3_train_network.py
+      sdxl: sd-scripts/sdxl_train_network.py
+    inference_scripts:
+      flux: sd-scripts/flux_minimal_inference.py
+      sd3: sd-scripts/sd3_minimal_inference.py
+      sdxl: sd-scripts/sdxl_gen_img.py
+    network_modules:
+      flux: networks.lora_flux
+      sd3: networks.lora_sd3
+      sdxl: networks.lora
+    pretrained_models:
+      flux: Stable-diffusion/flux/flux1-dev2pro.safetensors
+      sd3: ""
+      sdxl: ""
+    ae: VAE/ae.sft
+    vae: VAE/ae.sft
+    clip_l: clip/clip_l.safetensors
+    clip_g: clip/clip_g.safetensors
+    t5xxl: clip/t5xxl_fp16.safetensors
+    resolution: "512,512"
+    train_batch_size: 2
+    max_train_epochs: 100
+    save_every_n_epochs: 5
+    learning_rate: "1e-4"
+    unet_lr: "5e-4"
+    text_encoder_lr: "2e-5"
+    optimizer_type: AdamW8bit
+    optimizer_args: []
+    lr_scheduler: constant
+    gradient_accumulation_steps: 8
+    network_dim: 32
+    network_alpha: 16
+    seed: 1026
+    mixed_precision: bf16
+    save_precision: bf16
+    save_model_as: safetensors
+    caption_extension: .txt
+    max_token_length: 225
+    vae_batch_size: 4
+    max_data_loader_n_workers: 8
+    persistent_data_loader_workers: true
+    enable_bucket: true
+    min_bucket_reso: 512
+    max_bucket_reso: 1024
+    bucket_no_upscale: true
+    cache_latents: true
+    cache_latents_to_disk: true
+    cache_text_encoder_outputs: true
+    cache_text_encoder_outputs_to_disk: true
+    gradient_checkpointing: false
+    sdpa: true
+    xformers: false
+    disable_mmap_load_safetensors: false
+    fp8_base_unet: true
+    blocks_to_swap: 8
+    timestep_sampling: flux_shift
+    sigmoid_scale: 1.0
+    model_prediction_type: raw
+    training_guidance_scale: 1.0
+    discrete_flow_shift: 3.185
+    inference_width: 512
+    inference_height: 512
+    inference_steps: 20
+    inference_guidance: 3.5
+    inference_cfg_scale: 1.0
+    inference_seed: 1026
+    lora_multiplier: 1.0
+    offload: false
+    extra_train_args: []
+    extra_inference_args: []

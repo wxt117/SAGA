@@ -1,0 +1,69 @@
+format_spec:
+  name: exampledataset_demo_format
+  version: saga_format_spec_v1
+  description: >
+    Example-only parser spec for the local exampledataset. This is not a
+    default assumption for user datasets; real user datasets should provide
+    their own spec or use inspect-format + infer-format.
+  rules:
+    - name: aircraft_cn_filename
+      target: relative_path
+      pattern: '^(?P<class>[^/]+)/海况(?P<sea_state>\d+)级_(?P<processing>[^_]+)_(?P<target_name_cn>.+?)\((?P<target_group>.*?)\)_(?P<param_1>-?\d+(?:\.\d+)?)_(?P<incidence>-?\d+(?:\.\d+)?)_(?P<azimuth>-?\d+(?:\.\d+)?)_(?P<resolution>-?\d+(?:\.\d+)?)_(?P<band>[A-Za-z0-9]+)\.[^.]+$'
+      fields:
+        class: class
+        sea_state: sea_state
+        processing: processing
+        target_name_cn: target_name_cn
+        target_group: target_group
+        param_1: param_1
+        incidence: incidence_angle_deg
+        azimuth: azimuth_deg
+        resolution: resolution_m
+        band: band
+
+    - name: vehicle_inci_azim_pol
+      target: relative_path
+      pattern: '^车辆数据-全极化/(?P<class>[^/（(]+)[（(](?P<class_description>.*?)[）)]/(?P<band>[^/]+)/inci-(?P<incidence>-?\d+(?:\.\d+)?)-azim-(?P<azimuth>-?\d+(?:\.\d+)?)-(?P<polarization>[A-Za-z0-9]+)\.[^.]+$'
+      fields:
+        class: class
+        class_description: class_description
+        band: band
+        incidence: incidence_angle_deg
+        azimuth: azimuth_deg
+        polarization: polarization
+
+    - name: vehicle_elev_azim_pol
+      target: relative_path
+      pattern: '^车辆数据-全极化/(?P<class>[^/]+)/elev-(?P<elevation>-?\d+(?:\.\d+)?)-azim-(?P<azimuth>-?\d+(?:\.\d+)?)_(?P<polarization>hh|hv|vh|vv|pauli)\.[^.]+$'
+      fields:
+        class: class
+        elevation: elevation_angle_deg
+        azimuth: azimuth_deg
+        polarization: polarization
+      constants:
+        band: X
+
+    - name: vehicle_pol_with_attr
+      target: relative_path
+      pattern: '^车辆数据-全极化/(?P<class>[^/]+)/(?P<target_name>.+?)\((?P<target_attr>.*?)\)_(?P<azimuth>-?\d+(?:\.\d+)?)_(?P<polarization>hh|hv|vh|vv|pauli)\.[^.]+$'
+      fields:
+        class: class
+        target_name: target_name
+        target_attr: target_serial_or_attr
+        azimuth: azimuth_deg
+        polarization: polarization
+      constants:
+        band: X
+
+    - name: vehicle_simple_pol
+      target: relative_path
+      pattern: '^车辆数据-全极化/(?P<class>[^/]+)/(?P<target_name>[A-Za-z0-9_-]+)_(?P<azimuth>-?\d+(?:\.\d+)?)_(?P<polarization>hh|hv|vh|vv|pauli)\.[^.]+$'
+      fields:
+        class: class
+        target_name: target_name
+        azimuth: azimuth_deg
+        polarization: polarization
+      constants:
+        band: X
+  fallback:
+    class_from_parent: true

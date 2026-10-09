@@ -1,0 +1,12 @@
+llm:
+  provider: deepseek
+  model: deepseek-v4-pro
+  base_url: https://api.deepseek.com
+  # Set DEEPSEEK_API_KEY in the environment. Never commit credentials here.
+  api_key: null
+  api_key_env: DEEPSEEK_API_KEY
+  timeout_s: 240
+  temperature: 0.0
+  max_tokens: 16000
+  extra_body:
+    reasoning_effort: low

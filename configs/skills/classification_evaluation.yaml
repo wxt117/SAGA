@@ -1,0 +1,27 @@
+classification_evaluation:
+  name: ClassificationEvaluationSkill
+  description: SAGA standard downstream classification evaluator based on the provided multi-label timm project.
+  project_root: myproject/PyTorch-Image-Models-Multi-Label-Classification-main
+  conda_env: sd3
+  model: efficientnet_b2
+  batch_size: 32
+  epochs: 10
+  workers: 4
+  pretrained: true
+  amp: true
+  train_script: train.py
+  validate_script: validate.py
+  extra_train_args: []
+  extra_validate_args: []
+  adapter:
+    split_seed: 2026
+    val_fraction: 0.2
+    test_fraction: 0.0
+    primary_label_field: class
+    metadata_label_field: polarization
+    domain_label_field: domain
+    default_domain_label: SAR
+    default_metadata_label: all
+    image_materialization: symlink
+    include_augmented_in_validation: false
+    primary_metric: acc1_article

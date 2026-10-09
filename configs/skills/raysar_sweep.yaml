@@ -1,0 +1,21 @@
+raysar_sweep:
+  name: RaySARSweepSynthesisSkill
+  description: Multi-view RaySAR simulation from a 3D model by sweeping target azimuth/aspect angles.
+  model_to_pov_config: configs/skills/model_to_pov_scene.yaml
+  raysar_config: configs/skills/raysar.yaml
+  max_views: 72
+  width: 512
+  height: 512
+  map_products:
+    - All_Reflections_Fr.tif
+    - Single_Bounce_Fr.tif
+    - Double_Bounce_Fr.tif
+  view_dir_template: az_{azimuth_label}
+  caption_template: "SAR image, RaySAR simulation, azimuth {azimuth_deg:g} deg, incidence {incidence_angle_deg:g} deg, {map_product}"
+  copy_maps: true
+  render: true
+  postprocess: true
+  sar_intersection: true
+  auto_fix_scene: true
+  build_if_missing: true
+  keep_intermediate: true

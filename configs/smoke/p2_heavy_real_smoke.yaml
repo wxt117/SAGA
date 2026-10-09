@@ -1,0 +1,46 @@
+smoke_matrix:
+  schema_version: saga_smoke_matrix_config_v1
+  description: >
+    Gated real-run smoke matrix for heavyweight skills. These cases are not run
+    unless `saga smoke-matrix --run-real` is passed. Use only when GPU/time and
+    external render dependencies are intentionally available.
+  saga_config: configs/saga.yaml
+  execute: true
+  use_memory: true
+  sample_limit: 24
+  image_probe_limit: 24
+  bridge_sample_limit: 64
+  memory_dir: runs/heavy_smoke_memory
+
+  cases:
+    - id: diffusion_lora_real_1ep_1gen
+      allow_real: true
+      request: "用 exampledataset/车辆数据-全极化/ZJGC-X 训练LoRA做有极化方式的扩散模型生成，后面的字母代表极化方式，pauli不作为数据集，生成1张，训练1轮"
+      expect:
+        task: diffusion_lora_generation
+        selected_skill: DiffusionLoRAGenerationSkill
+        selected_recipe_task: diffusion_lora_generation
+
+    - id: background_generation_real_1img
+      allow_real: true
+      request: "生成1张水体和道路混合的SAR背景图，不需要用户训练背景模型"
+      expect:
+        task: background_generation
+        selected_skill: BackgroundGenerationSkill
+        selected_recipe_task: background_generation
+
+    - id: geodiff_sar_real_protocol_1ep_1gen
+      allow_real: true
+      request: "用 myproject/qinglong_trainer_29b/train/dsine/747 作为真实SAR训练数据，用 myproject/geodiff_components/raytracing/models/747.obj 作为3D模型，使用GeoDiff-SAR做目标稀疏方位角补全，生成1张，方位角0，下视角20，训练1轮"
+      expect:
+        task: geodiff_sar_generation
+        selected_skill: GeoDiffSARSkill
+        selected_recipe_task: geodiff_sar_generation
+
+    - id: raysar_sweep_real_1view
+      allow_real: true
+      request: "用 configs/smoke/assets/tiny_target.obj 做RaySAR物理仿真，方位角0，下视角20，生成1张"
+      expect:
+        task: raysar_synthesis
+        selected_skill: RaySARSynthesisSkill
+        selected_recipe_task: raysar_synthesis

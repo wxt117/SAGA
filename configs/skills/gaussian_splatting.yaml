@@ -1,0 +1,17 @@
+skill:
+  name: GaussianSplattingCompletionSkill
+  description: Lightweight sparse-azimuth SAR completion through myproject/SAR GS V1.
+  project_root: myproject/SAR GS V1
+  default_dry_run: true
+  requires_run_flag: true
+  train_script: train_sar.py
+  view_script: view_result.py
+  outputs:
+    gaussian_model: gaussians_final.npz
+    rendered_views: rendered_views
+    run_report: gaussian_splatting_run.json
+  defaults:
+    render_resolution: 128
+    iterations: 1000
+    tile_size: 64
+    use_taichi: true

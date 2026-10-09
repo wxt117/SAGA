@@ -1,0 +1,80 @@
+geodiff_sar:
+  name: GeoDiffSARSkill
+  description: "GeoDiff-SAR composite skill: real-image GEFM extraction, FLUX ControlNet training, 3D-model GEFM rendering, and ControlNet inference."
+  conda_env: sd3
+
+  qinglong_project_dir: myproject/qinglong_trainer_29b
+  preprocess_dir: myproject/geodiff_components/preprocess3
+  raytracing_dir: myproject/geodiff_components/raytracing
+
+  real_gefm_script: generate_training_data_for_folder.py
+  raytracing_batch_script: batch_generate_gecm.py
+  controlnet_train_script: sd-scripts/flux_train_control_net.py
+  controlnet_inference_script: inference/flux_controlnet_inference.py
+
+  output_name_prefix: saga_geodiff_controlnet
+  generated_output_name: saga_geodiff
+  default_model_name: target
+
+  max_scattering_points: 10
+  pose_method: azimuth
+  raytracing_jobs: 1
+  raytracing_pipeline_mode: pure3d
+  raytracing_pol: all
+  raytracing_image_size: 900
+  raytracing_only_skeleton_png: true
+  raytracing_strong_method: raytrace
+  raytracing_strong_top_k: 10
+  raytracing_strong_hard_max: 10
+  raytracing_strong_threshold_db: -9.5
+  raytracing_strong_nms_bins: 44
+  raytracing_extra_args: []
+
+  target_count: 20
+  training_epochs: 25
+  train_batch_size: 2
+  gradient_accumulation_steps: 8
+  save_every_n_epochs: 5
+  learning_rate: "1e-4"
+  seed: 1026
+  mixed_precision: bf16
+  save_precision: bf16
+  caption_extension: .txt
+  vae_batch_size: 4
+  resolution: "512,512"
+  max_data_loader_n_workers: 8
+  cache_latents: true
+  cache_latents_to_disk: true
+  cache_text_encoder_outputs: true
+  cache_text_encoder_outputs_to_disk: true
+  persistent_data_loader_workers: true
+  gradient_checkpointing: false
+  full_bf16: false
+  fp8_base: false
+  fp8_base_unet: false
+  blocks_to_swap: 8
+  timestep_sampling: shift
+  sigmoid_scale: 1.0
+  discrete_flow_shift: 3.185
+  model_prediction_type: raw
+  guidance_scale: 1.0
+  apply_t5_attn_mask: true
+  disable_mmap_load_safetensors: false
+
+  pretrained_model: Stable-diffusion/flux/flux1-dev2pro.safetensors
+  ae: VAE/ae.sft
+  clip_l: clip/clip_l.safetensors
+  t5xxl: clip/t5xxl_fp16.safetensors
+  controlnet_init_weights: ""
+
+  inference_width: 512
+  inference_height: 512
+  inference_steps: 20
+  inference_scale: 3.5
+  inference_seed: 1026
+  inference_cpu_threads: 8
+  train_cpu_threads: 8
+  cuda: null
+
+  prompt_template: "SAR image, {model_name}, azimuth {azimuth:g} deg, depression {depression:g} deg, GeoDiff-SAR physical prior ControlNet"
+  prompt_fallback: "SAR image, target, GeoDiff-SAR physical prior ControlNet"

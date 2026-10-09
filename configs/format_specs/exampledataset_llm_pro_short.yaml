@@ -1,0 +1,41 @@
+format_spec:
+  name: custom_sar_classification
+  version: saga_format_spec_v1
+  description: SAR classification dataset with multiple directory layouts and polarizations.
+  rules:
+  - name: depth4_elev_azim_pol
+    target: relative_path
+    pattern: ^车辆数据-全极化/(?P<class_name>[^/]+)/(?P<band>[^/]+)/inci-(?P<incidence>[\d.]+)-azim-(?P<azimuth>[\d.]+)-(?P<polarization>\w+)\.png$
+    fields:
+      class_name: class_name
+      band: band
+      incidence: incidence
+      azimuth: azimuth
+      polarization: polarization
+  - name: depth3_elev_azim
+    target: relative_path
+    pattern: ^车辆数据-全极化/(?P<class_name>[^/]+)/elev-(?P<elevation>[\d.]+)-azim-(?P<azimuth>[\d.]+)_(?P<polarization>pauli)\.png$
+    fields:
+      class_name: class_name
+      elevation: elevation
+      azimuth: azimuth
+      polarization: polarization
+  - name: depth3_vehicle_pol
+    target: relative_path
+    pattern: ^车辆数据-全极化/(?P<source>[^/]+)/(?P<class_name>.+)_(?P<number>\d+)_(?P<polarization>hh|hv|vh|vv)\.png$
+    fields:
+      class_name: class_name
+      source: source
+      number: number
+      polarization: polarization
+    constants:
+      dataset: vehicle_full_pol
+  - name: depth2_tif
+    target: relative_path
+    pattern: ^(?P<class_name>[^/]+)/[^/]+\.tif$
+    fields:
+      class_name: class_name
+    constants:
+      suffix: tif
+  fallback:
+    class_from_parent: true

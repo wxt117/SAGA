@@ -1,0 +1,18 @@
+name: DiffusionLoRAGenerationSkill
+version: 0.1.0
+description: Train text-caption SAR LoRA models with qinglong_trainer scripts and generate augmented images.
+inputs:
+  dataset_root: Directory containing paired image files and same-stem .txt captions.
+  model_family: One of flux, sd3, sdxl.
+  target_count: Number of prompt/inference commands to plan or run.
+outputs:
+  caption_dataset_profile: Validation report for image/txt caption data.
+  lora_dataset_config: qinglong/kohya-compatible dataset_config.toml.
+  train_command: LoRA training command.
+  inference_commands: Text-to-image inference commands using the expected LoRA weight.
+safety:
+  default_mode: dry_run
+  expensive_execution_requires: --run or dry_run=false
+  excludes:
+    - ControlNet generation
+    - GeoDiff-SAR 3D/physical-prior azimuth completion

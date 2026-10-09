@@ -1,0 +1,35 @@
+model_to_pov_scene:
+  name: ModelToPOVSceneCompilerSkill
+  description: Compile common 3D target assets into RaySAR-compatible POV-Ray scenes.
+  output_scene_name: generated_scene.pov
+  object_name: SAGA_Target
+  input_up_axis: z
+  pov_height_axis: z
+  center_model: true
+  place_on_ground: true
+  scene_center: [0.0, 0.0, 0.0]
+  target_extent_m: null
+  scale_factor: 1.0
+  max_faces: 250000
+  max_vertices: 250000
+  simplify_if_needed: false
+  incidence_angle_deg: 35.0
+  depression_angle_deg: null
+  azimuth_deg: 0.0
+  pitch_deg: 0.0
+  roll_deg: 0.0
+  range_distance_m: 500.0
+  sensor_plane_m: 100.0
+  orthographic_angle: 45.0
+  add_ground: true
+  sar_output_data: true
+  sar_intersection: true
+  material_reflection: 0.3
+  material_diffuse: 0.3
+  material_ambient: 0.0
+  material_color: [1.0, 1.0, 1.0]
+  ground_reflection: 0.05
+  ground_diffuse: 0.2
+  ground_ambient: 0.0
+  pointcloud_delaunay: true
+  dry_run_writes_scene: true

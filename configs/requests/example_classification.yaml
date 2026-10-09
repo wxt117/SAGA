@@ -1,0 +1,18 @@
+request_id: exampledataset_classification_aug_v1
+task:
+  type: classification
+  primary_metric: accuracy
+goals:
+  - improve_classification
+  - complete_sparse_azimuth
+constraints:
+  allow_traditional_aug: true
+  allow_geodiff_sar: true
+  allow_gaussian_splatting: true
+  allow_style_transfer: true
+  allow_background_generation: false
+  allow_scene_composition: false
+preferences:
+  speed: balanced
+  quality: high
+  output_format: saga_pair

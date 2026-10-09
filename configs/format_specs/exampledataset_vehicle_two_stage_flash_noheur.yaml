@@ -1,0 +1,49 @@
+format_spec:
+  name: exampledataset_vehicle_two_stage_flash_noheur
+  version: saga_format_spec_v1
+  description: 'SAR vehicle classification dataset with multiple target classes. Two
+    main layout families: one with band/incidence/azimuth/polarization in path, another
+    with target_name and azimuth index in filename. Some files include elevation angle.
+    Class is always derived from parent directory.'
+  rules:
+  - name: multi_band_inci_azim_pol
+    target: relative_path
+    pattern: ^(?P<class>[^/]+?)/(?P<band>[A-Za-z0-9]+)/inci\-(?P<incidence_angle_deg>-?\d+(?:\.\d+)?)\-azim\-(?P<azimuth_deg>-?\d+(?:\.\d+)?)\-(?P<polarization>[A-Za-z0-9]+)\.[^./]+$
+    fields:
+      class: class
+      band: band
+      incidence_angle_deg: incidence_angle_deg
+      azimuth_deg: azimuth_deg
+      polarization: polarization
+    constants: {}
+    confidence: 0.95
+  - name: flat_target_azim_pol
+    target: relative_path
+    pattern: ^(?P<class>[^/]+?)/(?P<target_name>[^/]+?)_(?P<azimuth_deg>-?\d+(?:\.\d+)?)_(?P<polarization>[A-Za-z0-9]+)\.[^./]+$
+    fields:
+      class: class
+      target_name: target_name
+      azimuth_deg: azimuth_deg
+      polarization: polarization
+    constants: {}
+    confidence: 0.85
+  - name: elevation_azimuth_pol
+    target: relative_path
+    pattern: ^(?P<class>[^/]+?)/elev\-(?P<elevation_angle_deg>-?\d+(?:\.\d+)?)\-azim\-(?P<azimuth_deg>-?\d+(?:\.\d+)?)_(?P<polarization>[A-Za-z0-9]+)\.[^./]+$
+    fields:
+      class: class
+      elevation_angle_deg: elevation_angle_deg
+      azimuth_deg: azimuth_deg
+      polarization: polarization
+    constants: {}
+    confidence: 0.95
+  fallback:
+    class_from_parent: true
+  unresolved:
+  - field: azimuth_deg
+    examples:
+    - ZJGC-X/D7_0_hh.png (azimuth_deg=0)
+    - ZJZC-X/BRDM_2_68_pauli.png (azimuth_deg=68)
+    - BBZC-X/BMP2(SN_9566)_49_hh.png (azimuth_deg=49)
+    reason: The numeric index after target_name varies up to 272 but its mapping to
+      actual azimuth angle in degrees is not provided.

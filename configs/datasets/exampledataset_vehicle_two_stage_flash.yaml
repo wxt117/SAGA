@@ -1,0 +1,15 @@
+name: exampledataset_vehicle_two_stage_flash
+root: ../../exampledataset/车辆数据-全极化
+format: custom
+format_spec: ../format_specs/exampledataset_vehicle_two_stage_flash.yaml
+task: classification
+splits:
+  train: .
+image:
+  domain: intensity
+  channels: 1
+label:
+  source: filename
+  filename_schema: dataset_format_spec
+normalization:
+  image_mode: link_or_reference

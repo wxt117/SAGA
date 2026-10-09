@@ -1,0 +1,23 @@
+format_spec:
+  name: custom_sar_classification_format
+  version: saga_format_spec_v1
+  description: Inferred format for SAR classification dataset with multiple path structures.
+  rules:
+  - name: explicit_angles_rule
+    target: relative_path
+    pattern: ^车辆数据-全极化/(?P<class>[^/]+)(?:/(?P<band>[^/]+))?/(?:elev-(?P<elevation_angle_deg>[0-9.]+)-|inci-(?P<incidence_angle_deg>[0-9.]+)-)azim-(?P<azimuth_deg>[0-9.]+)[^/]*\.\w+$
+    fields:
+      class: class
+      band: band
+      elevation_angle_deg: elevation_angle_deg
+      azimuth_deg: azimuth_deg
+      incidence_angle_deg: incidence_angle_deg
+  - name: class_azimuth_polarization_rule
+    target: relative_path
+    pattern: .*/(?P<class>[^_/]+(?:_[^_/]+)*)_(?P<azimuth_deg>\d+)_(?P<polarization>[a-z]{2})\.\w+$
+    fields:
+      class: class
+      azimuth_deg: azimuth_deg
+      polarization: polarization
+  fallback:
+    class_from_parent: true

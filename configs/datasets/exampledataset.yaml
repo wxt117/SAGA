@@ -1,0 +1,15 @@
+name: exampledataset
+root: ../../exampledataset
+format: custom
+format_spec: ../format_specs/exampledataset_format.yaml
+task: classification
+splits:
+  train: .
+image:
+  domain: intensity
+  channels: 1
+label:
+  source: filename
+  filename_schema: dataset_format_spec
+normalization:
+  image_mode: link_or_reference

@@ -1,0 +1,23 @@
+traditional_augmentation:
+  name: TraditionalAugmentationSkill
+  description: Fast SAR-aware deterministic augmentation baseline.
+  multiplier: 2
+  seed: 1026
+  output_image_format: png
+  preserve_sidecars: true
+  copy_originals: false
+  operations:
+    - hflip
+    - vflip
+    - rotate
+    - crop_resize
+    - intensity_scale
+    - speckle_noise
+    - gaussian_noise
+  rotate_degrees: [-15, -10, -5, 5, 10, 15, 90, 180, 270]
+  crop_scale_range: [0.86, 0.98]
+  intensity_scale_range: [0.85, 1.18]
+  contrast_range: [0.9, 1.12]
+  speckle_std_range: [0.03, 0.12]
+  gaussian_std_range: [2.0, 10.0]
+  blur_probability: 0.08

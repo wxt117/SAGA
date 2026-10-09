@@ -1,0 +1,209 @@
+format_spec:
+  name: exampledataset_two_stage_flash
+  version: saga_format_spec_v1
+  description: Dataset contains SAR images of ground vehicles (multiple targets, bands
+    Ku/X, incidence/azimuth annotations) and aircraft (Boeing707, B747) with varying
+    naming conventions.
+  rules:
+  - name: saga_inci_azim_pol_with_band
+    target: relative_path
+    pattern: ^(?:.+?/)?(?P<class>[^/（(]+)[（(](?P<class_description>.*?)[）)]/(?P<band>[^/]+)/inci-(?P<incidence>-?\d+(?:\.\d+)?)-azim-(?P<azimuth>-?\d+(?:\.\d+)?)-(?P<polarization>[A-Za-z0-9]+)\.[^.]+$
+    fields:
+      class: class
+      class_description: class_description
+      band: band
+      incidence: incidence_angle_deg
+      azimuth: azimuth_deg
+      polarization: polarization
+    constants: {}
+    confidence: 0.95
+    support_in_inspection: 95
+  - name: saga_inci_azim_pol_plain
+    target: relative_path
+    pattern: ^(?:.+?/)?(?P<class>[^/]+)/(?P<band>[^/]+)/inci-(?P<incidence>-?\d+(?:\.\d+)?)-azim-(?P<azimuth>-?\d+(?:\.\d+)?)-(?P<polarization>[A-Za-z0-9]+)\.[^.]+$
+    fields:
+      class: class
+      band: band
+      incidence: incidence_angle_deg
+      azimuth: azimuth_deg
+      polarization: polarization
+    constants: {}
+    confidence: 0.95
+    support_in_inspection: 95
+  - name: saga_elev_azim_pol
+    target: relative_path
+    pattern: ^(?:.+?/)?(?P<class>[^/]+)/elev-(?P<elevation>-?\d+(?:\.\d+)?)-azim-(?P<azimuth>-?\d+(?:\.\d+)?)_(?P<polarization>hh|hv|vh|vv|pauli)\.[^.]+$
+    fields:
+      class: class
+      elevation: elevation_angle_deg
+      azimuth: azimuth_deg
+      polarization: polarization
+    constants:
+      band: X
+    confidence: 0.582
+    support_in_inspection: 6
+  - name: saga_name_attr_azim_pol
+    target: relative_path
+    pattern: ^(?:.+?/)?(?P<class>[^/]+)/(?P<target_name>.+?)[(（](?P<target_attr>.*?)[)）]_(?P<azimuth>-?\d+(?:\.\d+)?)_(?P<polarization>hh|hv|vh|vv|pauli)\.[^.]+$
+    fields:
+      class: class
+      target_name: target_name
+      target_attr: target_serial_or_attr
+      azimuth: azimuth_deg
+      polarization: polarization
+    constants:
+      band: X
+    confidence: 0.707
+    support_in_inspection: 29
+  - name: saga_name_azim_pol
+    target: relative_path
+    pattern: ^(?:.+?/)?(?P<class>[^/]+)/(?P<target_name>[^/()（）]+)_(?P<azimuth>-?\d+(?:\.\d+)?)_(?P<polarization>hh|hv|vh|vv|pauli)\.[^.]+$
+    fields:
+      class: class
+      target_name: target_name
+      azimuth: azimuth_deg
+      polarization: polarization
+    constants:
+      band: X
+    confidence: 0.782
+    support_in_inspection: 43
+  - name: saga_sea_state_aircraft
+    target: relative_path
+    pattern: ^(?P<class>[^/]+)/海况(?P<sea_state>\d+)级_(?P<processing>[^_]+)_(?P<target_name_cn>.+?)[(（](?P<target_group>.*?)[)）]_(?P<param_1>-?\d+(?:\.\d+)?)_(?P<incidence>-?\d+(?:\.\d+)?)_(?P<azimuth>-?\d+(?:\.\d+)?)_(?P<resolution>-?\d+(?:\.\d+)?)_(?P<band>[A-Za-z0-9]+)\.[^.]+$
+    fields:
+      class: class
+      sea_state: sea_state
+      processing: processing
+      target_name_cn: target_name_cn
+      target_group: target_group
+      param_1: param_1
+      incidence: incidence_angle_deg
+      azimuth: azimuth_deg
+      resolution: resolution_m
+      band: band
+    constants: {}
+    confidence: 0.582
+    support_in_inspection: 6
+  - name: vehicle_inci_azim
+    target: relative_path
+    pattern: ^车辆数据\-全极化/(?P<class>[^/]+?)/(?P<band>[A-Za-z0-9]+)/inci\-(?P<incidence_angle_deg>-?\d+(?:\.\d+)?)\-azim\-(?P<azimuth_deg>-?\d+(?:\.\d+)?)\-(?P<polarization>[A-Za-z0-9]+)\.png$
+    fields:
+      class: class
+      band: band
+      incidence_angle_deg: incidence_angle_deg
+      azimuth_deg: azimuth_deg
+      polarization: polarization
+    constants: {}
+    confidence: 0.95
+  - name: vehicle_elev_azim
+    target: relative_path
+    pattern: ^车辆数据\-全极化/(?P<class>[^/]+?)/elev\-(?P<elevation_angle_deg>-?\d+(?:\.\d+)?)\-azim\-(?P<azimuth_deg>-?\d+(?:\.\d+)?)_(?P<polarization>[A-Za-z0-9]+)\.png$
+    fields:
+      class: class
+      elevation_angle_deg: elevation_angle_deg
+      azimuth_deg: azimuth_deg
+      polarization: polarization
+    constants: {}
+    confidence: 0.9
+  - name: vehicle_D7_index_pol
+    target: relative_path
+    pattern: ^车辆数据\-全极化/ZJGC\-X/D7_(?P<sample_index>-?\d+(?:\.\d+)?)_(?P<polarization>[A-Za-z0-9]+)\.png$
+    fields:
+      sample_index: sample_index
+      polarization: polarization
+    constants:
+      class: ZJGC-X
+      target_name: D7
+    confidence: 0.9
+  - name: vehicle_BRDM_index_pol
+    target: relative_path
+    pattern: ^车辆数据\-全极化/ZJZC\-X/BRDM_(?P<target_attr>[^/]+?)_(?P<sample_index>-?\d+(?:\.\d+)?)_(?P<polarization>[A-Za-z0-9]+)\.png$
+    fields:
+      target_attr: target_attr
+      sample_index: sample_index
+      polarization: polarization
+    constants:
+      class: ZJZC-X
+    confidence: 0.9
+  - name: vehicle_T62_index_pol
+    target: relative_path
+    pattern: ^车辆数据\-全极化/ZXTK\-X/T62_(?P<sample_index>-?\d+(?:\.\d+)?)_(?P<polarization>[A-Za-z0-9]+)\.png$
+    fields:
+      sample_index: sample_index
+      polarization: polarization
+    constants:
+      class: ZXTK-X
+      target_name: T62
+    confidence: 0.9
+  - name: vehicle_BMP2_index_pol
+    target: relative_path
+    pattern: ^车辆数据\-全极化/BBZC\-X/BMP2\(SN_(?P<serial_number>[^/]+?)\)_(?P<sample_index>-?\d+(?:\.\d+)?)_(?P<polarization>[A-Za-z0-9]+)\.png$
+    fields:
+      serial_number: serial_number
+      sample_index: sample_index
+      polarization: polarization
+    constants:
+      class: BBZC-X
+      target_name: BMP2
+    confidence: 0.9
+  - name: vehicle_BTR70_index_pol
+    target: relative_path
+    pattern: ^车辆数据\-全极化/ZJYS\-X/BTR70\(SN_(?P<serial_number>[^/]+?)\)_(?P<sample_index>-?\d+(?:\.\d+)?)_(?P<polarization>[A-Za-z0-9]+)\.png$
+    fields:
+      serial_number: serial_number
+      sample_index: sample_index
+      polarization: polarization
+    constants:
+      class: ZJYS-X
+      target_name: BTR70
+    confidence: 0.9
+  - name: vehicle_BTR60_index_pol
+    target: relative_path
+    pattern: ^车辆数据\-全极化/ZJYS\-X/BTR_(?P<target_attr>[^/]+?)_(?P<sample_index>-?\d+(?:\.\d+)?)_(?P<polarization>[A-Za-z0-9]+)\.png$
+    fields:
+      target_attr: target_attr
+      sample_index: sample_index
+      polarization: polarization
+    constants:
+      class: ZJYS-X
+    confidence: 0.9
+  - name: boeing707_index
+    target: relative_path
+    pattern: ^(?P<class>[^/]+?)/(?P<sample_index>-?\d+(?:\.\d+)?)_(?P<frame_index>-?\d+(?:\.\d+)?)\.jpg$
+    fields:
+      class: class
+      sample_index: sample_index
+      frame_index: frame_index
+    constants: {}
+    confidence: 0.8
+  - name: b747_sea_state
+    target: relative_path
+    pattern: ^B747/海况(?P<sea_state>-?\d+(?:\.\d+)?)级_聚焦后_波音(?P<target_attr>[^/]+?)级民航客机\(NULL民航客机\)_(?P<resolution_m>-?\d+(?:\.\d+)?)_(?P<incidence_angle_deg>-?\d+(?:\.\d+)?)_(?P<azimuth_deg>-?\d+(?:\.\d+)?)_(?P<unresolved>[^/]+?)_(?P<band>[A-Za-z0-9]+)\.tif$
+    fields:
+      sea_state: sea_state
+      target_attr: target_attr
+      resolution_m: resolution_m
+      incidence_angle_deg: incidence_angle_deg
+      azimuth_deg: azimuth_deg
+      unresolved: unresolved
+      band: band
+    constants:
+      class: B747
+    confidence: 0.8
+  fallback:
+    class_from_parent: true
+  unresolved:
+  - field: azimuth_deg
+    examples:
+    - 车辆数据-全极化/ZJGC-X/D7_0_hh.png
+    - 车辆数据-全极化/BBZC-X/BMP2(SN_9566)_0_hh.png
+    reason: Numeric index may encode azimuth but mapping not visible.
+  - field: incidence_angle_deg
+    examples:
+    - 车辆数据-全极化/ZJGC-X/D7_0_hh.png
+    - 车辆数据-全极化/BBZC-X/BMP2(SN_9566)_0_hh.png
+    reason: Numeric index may encode incidence but mapping not visible.
+  - field: azimuth_deg
+    examples:
+    - 2_Boeing707-客机/0_1.jpg
+    reason: Filenames contain two numbers but meaning unknown.

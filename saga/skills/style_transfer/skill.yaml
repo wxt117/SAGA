@@ -1,0 +1,35 @@
+name: StyleTransferSkill
+version: saga_skill_v1
+status: available_as_wrapper
+category: feature_transfer
+task_scope:
+  - classification
+  - cross_payload_adaptation
+  - cross_domain_augmentation
+implementation:
+  adapter: saga.models.adapters.style_transfer.StyleTransferAdapter
+  upstream_entrypoint: myproject/stytransfer/style_transfer_general.py
+inputs:
+  content:
+    type: image_or_directory
+    description: Content SAR image(s) whose structure should be preserved.
+  style:
+    type: image_or_directory
+    description: Style/reference image(s) that provide transferred appearance.
+outputs:
+  output_dir:
+    type: directory
+    description: Stylized images plus SAGA run reports.
+metadata_policy:
+  preserves:
+    - class
+    - azimuth_deg
+    - incidence_angle_deg
+    - polarization
+  changes:
+    - domain_style
+    - payload_style
+notes:
+  - The wrapped script supports single images or directories for both content and style.
+  - The SAGA wrapper records command, config, stdout, stderr, and dry-run reports.
+  - Actual model execution may require local Stable Diffusion weights or network access to HuggingFace.

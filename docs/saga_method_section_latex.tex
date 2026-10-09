@@ -1,0 +1,267 @@
+\section{Method}
+\label{sec:method}
+
+This section presents SAGA, a schema-grounded and benefit-aware agent framework for SAR data generation and augmentation.
+Unlike a single augmentation algorithm, SAGA formulates SAR augmentation as a data-centric decision problem: given a heterogeneous user dataset, a natural-language request, available computational resources, and a library of augmentation skills, the system selects, compiles, executes, and verifies an augmentation recipe.
+The overall method consists of six components: problem formulation and system overview, schema-grounded dataset profiling, benefit-aware hybrid planning, recipe-centric skill execution, observer-driven evaluation and bounded repair, and policy memory with evidence accumulation.
+
+\subsection{Problem Formulation and System Overview}
+\label{subsec:problem_overview}
+
+Let $\mathcal{D}$ denote an input SAR dataset provided by the user.
+The dataset may contain target chips, scene images, sidecar text files, captions, annotations, metadata embedded in filenames, or 3D assets.
+Let $q$ denote the user's natural-language request, such as target-only augmentation, polarization-conditioned generation, sparse-azimuth completion, cross-platform feature migration, physical simulation, or target-background composition.
+Let $\mathcal{C}$ denote resource and execution constraints, including GPU availability, runtime budget, memory limit, target sample count, and whether real execution or dry-run planning is required.
+Let $\mathcal{K}=\{k_i\}_{i=1}^{N}$ be the SAR augmentation skill library, where each skill $k_i$ is associated with input requirements, controllable parameters, computational cost, expected benefits, and risks.
+Let $\mathcal{M}$ denote the policy memory that stores historical profiles, recipes, outcomes, and evaluation evidence.
+
+SAGA maps these inputs to an augmented dataset, an executable recipe, and evidence reports:
+\begin{equation}
+\mathrm{SAGA}(\mathcal{D}, q, \mathcal{C}, \mathcal{K}, \mathcal{M})
+\rightarrow
+(\mathcal{D}_{aug}, \mathcal{R}, \mathcal{E}),
+\label{eq:saga_mapping}
+\end{equation}
+where $\mathcal{D}_{aug}$ is the generated or augmented dataset, $\mathcal{R}$ is a reproducible recipe DAG, and $\mathcal{E}$ is a collection of observer and evaluator evidence.
+The evidence may include quality checks, SAR artifact scores, metadata coverage, angle coverage, duplicate and leakage reports, distribution metrics, and optional downstream evaluation.
+
+The key principle of SAGA is that it does not optimize a single image-generation objective.
+Instead, it selects and composes augmentation skills according to dataset deficits, user intent, execution constraints, and expected downstream utility.
+For example, a speed-first request on a simple target-chip dataset may select a GAN-based generator, while sparse-angle aircraft extrapolation with an available 3D model may select GeoDiff-SAR, and cross-platform migration with reference images may select a style-transfer skill.
+Thus, the central problem is not only whether new images can be generated, but whether a suitable and verifiable augmentation strategy can be selected for the current SAR dataset and task.
+
+Figure~\ref{fig:saga_overview} illustrates the overall architecture.
+SAGA first profiles the dataset and grounds heterogeneous formats into a validated schema.
+The intent recognizer and hybrid planner then combine the user request, dataset profile, resource constraints, skill descriptors, and policy memory to generate candidate recipes.
+The selected recipe is executed by deterministic skill runtimes, observed by evaluators, optionally repaired within bounded limits, and finally exported with evidence reports.
+
+\begin{figure}[t]
+    \centering
+    \fbox{\parbox{0.92\linewidth}{
+    \centering
+    Placeholder for the overall SAGA architecture.\\
+    User Request + Dataset $\rightarrow$ Schema-Grounded Profiling $\rightarrow$
+    Benefit-Aware Planning $\rightarrow$ Recipe Execution $\rightarrow$
+    Observer/Repair $\rightarrow$ Policy Memory $\rightarrow$
+    Augmented Dataset + Report.
+    }}
+    \caption{Overall architecture of SAGA. The system converts heterogeneous SAR inputs and natural-language requests into validated schemas, benefit-aware recipes, executable skill DAGs, and verified augmented datasets.}
+    \label{fig:saga_overview}
+\end{figure}
+
+\subsection{Schema-Grounded Dataset Profiling}
+\label{subsec:schema_profiling}
+
+SAR datasets are often stored in laboratory-specific and task-specific formats.
+Important semantic fields, such as target class, azimuth angle, depression angle, resolution, band, polarization, sensor platform, or simulation parameters, may appear in directory names, filenames, sidecar text files, image captions, annotation files, or user-provided descriptions.
+Requiring all users to convert their data into a fixed format before augmentation would reduce usability, while allowing an LLM to freely infer and execute on unknown formats would be unreliable.
+SAGA therefore adopts schema-grounded dataset profiling.
+
+The profiler operates in three stages.
+First, a deterministic raw scanner extracts observable facts from $\mathcal{D}$ without assuming a fixed dataset format.
+These facts include file extensions, image counts, image sizes, bit depths, directory structures, sidecar files, annotation candidates, filename token patterns, numeric and string tokens, class-folder candidates, and image-label alignment statistics.
+This stage does not assign semantic meaning to ambiguous tokens; it only records what can be objectively observed.
+
+Second, SAGA induces a candidate dataset schema from the raw profile and the user's format hints.
+For standard formats such as class-folder, YOLO, COCO, VOC, or mask-folder layouts, deterministic parsers can directly propose a schema.
+For non-standard formats, an LLM-assisted schema induction module reads only the compact raw profile and user descriptions, rather than the entire dataset, and proposes candidate semantic mappings.
+For example, if the user states that the tokens after ``850'' in a filename represent depression angle, azimuth angle, resolution, and band, the schema induction module maps these token positions to corresponding metadata fields.
+
+Third, the candidate schema is passed through a deterministic validator.
+The validator checks whether the proposed rules can be applied consistently to the dataset, whether the required fields are parseable, whether image-label pairs are aligned, whether metadata coverage is sufficient, and whether user-specified filters can select valid samples.
+Only a schema that passes validation is accepted as the internal dataset schema.
+In implementation, this validated schema is represented as \texttt{DatasetFormatSpec}, but throughout the paper we refer to it as a validated dataset schema.
+
+This design separates semantic proposal from factual validation:
+\begin{equation}
+\text{LLM/user hints propose semantics}, \quad
+\text{program validators verify consistency}.
+\end{equation}
+Consequently, SAGA does not assume a fixed external dataset format, but it requires a deterministic internal schema before any skill is executed.
+If the semantic interpretation is incomplete, SAGA produces a partial profile and requests the minimum missing information instead of executing on unsupported assumptions.
+
+\begin{figure}[t]
+    \centering
+    \fbox{\parbox{0.92\linewidth}{
+    \centering
+    Placeholder for schema-grounded dataset profiling.\\
+    Raw Scanner $\rightarrow$ Standard Parser / LLM Schema Induction $\rightarrow$
+    Schema Validator $\rightarrow$ Validated Dataset Profile.
+    }}
+    \caption{Schema-grounded dataset profiling. SAGA first extracts low-level observable facts, then induces candidate semantic schemas from standard parsers or user hints, and finally accepts only validator-gated schemas for downstream execution.}
+    \label{fig:schema_profiling}
+\end{figure}
+
+\subsection{Benefit-Aware Hybrid Planning}
+\label{subsec:benefit_planning}
+
+After profiling, SAGA must determine which augmentation strategy is most appropriate for the current dataset and request.
+This decision is non-trivial because SAR augmentation skills differ substantially in capability, cost, controllability, and risk.
+Traditional SAR-aware transformations are fast and robust but offer limited novelty.
+GAN-based generation is efficient for simple target chips but has weak fine-grained controllability.
+Diffusion LoRA generation offers higher quality and metadata-conditioned synthesis but requires training time and GPU memory.
+GeoDiff-SAR supports geometry-guided large-angle extrapolation but is computationally heavy and requires 3D priors.
+RaySAR provides physically interpretable simulation from 3D models and imaging parameters, but may exhibit domain gaps.
+Style transfer supports cross-platform feature migration, while target-background composition supports scene-level synthesis.
+
+SAGA uses a hybrid planner in which an LLM provides high-level intent understanding and candidate plan proposals, while deterministic rules verify feasibility and rank candidate plans.
+The planner receives the validated dataset profile $\phi(\mathcal{D})$, the structured user intent $\psi(q)$, the resource constraints $\mathcal{C}$, skill descriptors $\mathcal{K}$, and relevant memory evidence from $\mathcal{M}$.
+For each candidate skill or recipe $r_i$, SAGA estimates a planning score:
+\begin{equation}
+\mathrm{score}(r_i)
+=
+\alpha B(r_i;\phi(\mathcal{D}),\psi(q))
+- \beta C(r_i;\mathcal{C})
+- \gamma R(r_i;\phi(\mathcal{D}))
++ \delta M(r_i;\mathcal{M}),
+\label{eq:planning_score}
+\end{equation}
+where $B$ is the expected dataset or task benefit, $C$ is the execution cost, $R$ is the risk of invalid or harmful augmentation, and $M$ is the support from historical evidence.
+The coefficients control the relative importance of benefit, cost, risk, and memory evidence.
+In practice, the score is implemented as a transparent rule-based ranking function informed by LLM-parsed intent and skill capability descriptors.
+
+The planner is constrained by guardrails.
+A candidate skill is rejected or down-weighted when its input requirements are not satisfied, when required metadata is unavailable, when the resource budget is insufficient, or when the requested task is better addressed by another skill.
+For example, RaySAR requires a 3D model and radar imaging parameters; GeoDiff-SAR requires sparse real images and geometry/physical priors; diffusion LoRA benefits from captions or metadata that can be converted into captions; style transfer requires both content and style domains.
+This prevents the LLM from directly invoking tools in an unconstrained ReAct style.
+
+The output of the planner is not an executed tool call, but a structured plan containing the selected task, selected skill, rejected alternatives, selection reasons, resource settings, expected outputs, and required evaluators.
+This plan is then compiled into an executable recipe DAG.
+Therefore, SAGA is neither a keyword router nor a free-form LLM tool caller.
+It is a benefit-aware hybrid planner: the LLM proposes high-level semantic interpretations, while deterministic guardrails enforce feasibility and the ranker selects a verifiable augmentation strategy.
+
+\begin{figure}[t]
+    \centering
+    \fbox{\parbox{0.92\linewidth}{
+    \centering
+    Placeholder for benefit-aware hybrid planning.\\
+    Dataset Profile + User Intent + Constraints + Skill Descriptors + Memory\\
+    $\rightarrow$ Candidate Recipes $\rightarrow$ Guardrails $\rightarrow$ Ranked Plan.
+    }}
+    \caption{Benefit-aware hybrid planning. Candidate augmentation strategies are proposed from the user intent and dataset profile, verified by skill-specific guardrails, and ranked using expected benefit, cost, risk, and memory evidence.}
+    \label{fig:benefit_planning}
+\end{figure}
+
+\subsection{Recipe-Centric Skill Execution}
+\label{subsec:recipe_execution}
+
+To ensure reproducibility and auditability, SAGA does not directly execute LLM-generated tool calls.
+Instead, the selected plan is compiled into an executable recipe DAG:
+\begin{equation}
+\mathcal{R}=(V,E),
+\end{equation}
+where $V$ is a set of nodes and $E$ is a set of dependency edges.
+Each node $v_i \in V$ corresponds to a profiling step, preprocessing step, augmentation skill, evaluator, repair policy, or export operation.
+We denote a recipe node as:
+\begin{equation}
+v_i = (k_i, x_i, \theta_i, y_i, \rho_i),
+\end{equation}
+where $k_i$ is the skill or operation, $x_i$ is the input artifact binding, $\theta_i$ is the parameter set, $y_i$ is the expected output artifact, and $\rho_i$ is the standardized run report.
+
+The recipe abstraction provides several advantages.
+First, it makes the execution path explicit: each augmentation run records which dataset schema, filters, skill parameters, model paths, random seeds, and evaluation steps were used.
+Second, it enables dry-run and real-run separation.
+In dry-run mode, SAGA validates inputs and writes the recipe, commands, and expected artifacts without expensive model execution.
+In real-run mode, the same recipe can be executed to materialize outputs.
+Third, it allows failed or partially completed runs to be resumed or analyzed step by step.
+Fourth, it provides a common interface for heterogeneous skills, including traditional augmentation, GAN generation, diffusion LoRA, GeoDiff-SAR, RaySAR simulation, style transfer, background generation, target-background composition, and evaluation skills.
+
+Each executed skill writes a standardized \texttt{SkillRunReport}, including status, inputs, outputs, parameters, commands, elapsed time, generated count, artifact paths, warnings, and failure messages.
+This report becomes part of the provenance record and is consumed by observers, exporters, and memory modules.
+By converting high-level plans into recipe DAGs and standardized run reports, SAGA makes agentic augmentation reproducible rather than ad hoc.
+
+\begin{figure}[t]
+    \centering
+    \fbox{\parbox{0.92\linewidth}{
+    \centering
+    Placeholder for recipe-centric execution.\\
+    Inspect Inputs $\rightarrow$ Preprocess $\rightarrow$ Run Skill $\rightarrow$
+    Evaluate Outputs $\rightarrow$ Repair/Export, with each node writing a SkillRunReport.
+    }}
+    \caption{Recipe-centric skill execution. Planner outputs are compiled into executable DAGs whose nodes bind inputs, parameters, expected outputs, and standardized run reports.}
+    \label{fig:recipe_execution}
+\end{figure}
+
+\subsection{Observer-Driven Evaluation and Bounded Repair}
+\label{subsec:observer_repair}
+
+SAGA distinguishes successful generation from useful augmentation.
+A generated image may exist on disk but still be unusable due to invalid metadata, label mismatch, excessive artifacts, near-duplicate content, data leakage, poor diversity, or failure to address the dataset deficit.
+Therefore, SAGA attaches observer evidence to each produced dataset.
+
+The observer layer consists of several evaluator groups.
+Format and consistency observers check file readability, image-label alignment, metadata preservation, expected output count, and valid export structure.
+Image quality observers check dynamic range, black/white image ratio, corrupted files, and basic statistics.
+SAR artifact observers examine SAR-specific failure modes such as stripe artifacts, abnormal smooth background gradients, target fragmentation, target compactness, and centering when appropriate.
+Distribution and diversity observers compare generated and reference images using lightweight feature statistics and duplicate or near-duplicate checks.
+Leakage observers detect whether augmented samples are too close to validation or test data.
+When the user requests a downstream claim, optional task evaluators such as classification probes can be used.
+
+To avoid overclaiming augmentation benefit, SAGA assigns evidence levels to the generated outputs:
+\begin{itemize}
+    \item \textbf{Level 0}: a recipe is planned, failed, or only dry-run evidence is available;
+    \item \textbf{Level 1}: samples are generated and basic quality checks pass;
+    \item \textbf{Level 2}: lightweight distribution, diversity, metadata, or artifact probes pass;
+    \item \textbf{Level 3}: a dataset deficit is measurably improved, such as class balance, polarization coverage, or angle coverage;
+    \item \textbf{Level 4}: a downstream evaluator reports task-level improvement.
+\end{itemize}
+Only Level~4 evidence supports a claim of downstream performance gain.
+Lower evidence levels indicate increasingly strong but still indirect support that the generated samples are usable.
+
+When observer triggers are activated, SAGA enters a bounded repair loop.
+The repair loop is not an open-ended LLM self-reflection process.
+It is constrained by three rules.
+First, repair is triggered only by explicit observer failures.
+Second, the number of repair trials is bounded by a maximum value.
+Third, each repair action can modify only a predefined safe parameter set, such as normalization mode, style strength, mask threshold, feather radius, generation count, sample rejection threshold, or prompt selection.
+If repair fails, SAGA records the failure and falls back to the last stable artifact or rejects invalid samples.
+This design improves robustness while preserving reproducibility.
+
+\begin{figure}[t]
+    \centering
+    \fbox{\parbox{0.92\linewidth}{
+    \centering
+    Placeholder for observer-driven evaluation and bounded repair.\\
+    Generated Dataset $\rightarrow$ Quality / SAR Artifact / Distribution / Duplicate / Leakage Observers\\
+    $\rightarrow$ Evidence Level $\rightarrow$ Bounded Repair or Export.
+    }}
+    \caption{Observer-driven evaluation and bounded repair. SAGA separates generation success from augmentation benefit and repairs only when explicit observer triggers occur under bounded parameter changes.}
+    \label{fig:observer_repair}
+\end{figure}
+
+\subsection{Policy Memory and Evidence Accumulation}
+\label{subsec:policy_memory}
+
+The final component of SAGA is an evidence-based policy memory.
+The purpose of memory is not to claim that SAGA has learned an optimal augmentation policy.
+Instead, memory records previous runs and uses them as planning evidence for future similar datasets and requests.
+Each memory entry stores a dataset profile, structured intent, selected recipe, skill configuration, execution outcome, observer results, and evidence level:
+\begin{equation}
+m_j =
+(\phi(\mathcal{D}_j), \psi(q_j), \mathcal{R}_j, o_j, e_j),
+\end{equation}
+where $o_j$ denotes execution outcomes and $e_j$ denotes evaluation evidence.
+
+During planning, SAGA retrieves memory entries with similar dataset profiles, tasks, metadata deficits, or resource constraints.
+These entries provide positive or negative evidence for candidate skills.
+For instance, previous runs may show that GAN generation is effective for simple target chips under limited memory, that diffusion LoRA benefits from metadata-derived captions, that GeoDiff-SAR is preferable for large-angle aircraft extrapolation when a 3D model is available, or that style transfer is more suitable than retraining when cross-platform reference images exist.
+Conversely, failed runs can down-weight skills under unsupported data conditions.
+
+Memory evidence is used only as a planning signal and remains subject to the same schema validation, skill guardrails, and observer checks as new requests.
+Thus, SAGA accumulates reusable evidence without bypassing deterministic verification.
+Over time, this memory allows the system to move from isolated tool execution toward evidence-informed SAR augmentation planning.
+
+\begin{figure}[t]
+    \centering
+    \fbox{\parbox{0.92\linewidth}{
+    \centering
+    Placeholder for policy memory.\\
+    Dataset Profile + Intent + Recipe + Skill Reports + Evaluator Evidence\\
+    $\rightarrow$ Memory Entry $\rightarrow$ Similarity Retrieval $\rightarrow$ Future Planner Evidence.
+    }}
+    \caption{Policy memory and evidence accumulation. SAGA records profiles, recipes, outcomes, and evidence levels, and retrieves similar historical cases as planning evidence for future augmentation requests.}
+    \label{fig:policy_memory}
+\end{figure}
+
+Overall, SAGA combines schema-grounded profiling, benefit-aware hybrid planning, recipe-centric execution, observer-driven verification, bounded repair, and evidence-based memory.
+This design allows the system to handle heterogeneous SAR datasets and diverse augmentation skills while maintaining reproducibility, controllability, and cautious benefit claims.

@@ -1,0 +1,42 @@
+format_spec:
+  name: SAR_dataset_format
+  version: saga_format_spec_v1
+  description: Multi-pattern SAR classification dataset with B747 tif and various
+    png patterns
+  rules:
+  - name: b747_tif
+    target: relative_path
+    pattern: ^(?P<class>[^/]+)/.*_(?:\d+)_(?P<incidence>\d+)_(?P<azimuth>\d+)_(?P<resolution>\d+(?:\.\d+)?)_(?P<band>[A-Z])\.tif$
+    fields:
+      class: class
+      incidence: incidence_angle_deg
+      azimuth: azimuth_deg
+      resolution: resolution_m
+      band: band
+    constants: {}
+  - name: inci_png
+    target: relative_path
+    pattern: ^[^/]+/[^/]+/(?P<band>[^/]+)/inci-(?P<incidence>\d+)-azim-(?P<azimuth>\d+(?:\.\d+)?)-(?P<polarization>[A-Za-z]+)\.png$
+    fields:
+      band: band
+      incidence: incidence_angle_deg
+      azimuth: azimuth_deg
+      polarization: polarization
+    constants: {}
+  - name: elev_png
+    target: relative_path
+    pattern: ^[^/]+/[^/]+/[^/]+/elev-(?P<elevation>\d+(?:\.\d+)?)-azim-(?P<azimuth>\d+(?:\.\d+)?)_(?P<polarization>[a-z]+)\.png$
+    fields:
+      elevation: elevation_angle_deg
+      azimuth: azimuth_deg
+      polarization: polarization
+    constants: {}
+  - name: vehicle_png
+    target: relative_path
+    pattern: ^[^/]+/[^/]+/[^/]+/[A-Za-z0-9_\(\)]+_(?P<azimuth>\d+)_(?P<polarization>[a-z]+)\.png$
+    fields:
+      azimuth: azimuth_deg
+      polarization: polarization
+    constants: {}
+  fallback:
+    class_from_parent: true

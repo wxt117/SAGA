@@ -1,0 +1,19 @@
+background_generation:
+  name: BackgroundGenerationSkill
+  description: Direct SAR background generation from the packaged segmentation-controlled FLUX ControlNet model.
+  project_dir: myproject/scene_gen_segment_large
+  num_images: 4
+  split: all
+  top_k: 64
+  selection_seed: 1026
+  seed: 1026
+  cns: 1.3
+  steps: 20
+  scale: 3.5
+  width: 512
+  height: 512
+  cuda: null
+  cpu_threads: 8
+  extra_prompt: ""
+  clear_cache_each_image: false
+  show_top: 8

@@ -1,0 +1,16 @@
+style_transfer:
+  name: StyleTransferSkill
+  description: Cross-payload or cross-domain SAR feature/style transfer using myproject/stytransfer.
+  adapter:
+    entrypoint: myproject/stytransfer/style_transfer_general.py
+    conda_env: sd3
+    model_path: runwayml/stable-diffusion-v1-5
+    device: cuda:0
+    image_size: 512
+    steps: 200
+    lr: 0.05
+    content_weight: 0.25
+    seed: 2025
+    self_layers: "10,16"
+    limit: 0
+    overwrite: false

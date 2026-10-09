@@ -1,0 +1,35 @@
+format_spec:
+  name: custom_dataset_format
+  version: saga_format_spec_v1
+  description: SAR classification dataset with vehicle targets
+  rules:
+  - name: explicit_elev_azim
+    target: relative_path
+    pattern: /elev-(?P<elev>[\d.]+)-azim-(?P<azim>[\d.]+)_[^/]*\.png
+    fields:
+      elev: elevation_angle_deg
+      azim: azimuth_deg
+    constants: {}
+  - name: explicit_inci_azim
+    target: relative_path
+    pattern: /inci-(?P<inci>[\d.]+)-azim-(?P<azim>[\d.]+)_[^/]*\.png
+    fields:
+      inci: incidence_angle_deg
+      azim: azimuth_deg
+    constants: {}
+  - name: vehicle_class_azim_polar
+    target: relative_path
+    pattern: /(?P<class>[A-Za-z0-9_]+(?:\([^)]*\))?)_(?P<azim>\d+)_(?P<polar>hh|hv|vh|vv)\.png
+    fields:
+      class: class
+      azim: azimuth_deg
+      polar: polarization
+    constants: {}
+  - name: tif_path_class
+    target: relative_path
+    pattern: /(?P<class>[^/]+)/[^/]+_\d+_\d+_\d+_[\d.]+_[A-Z]\.tif
+    fields:
+      class: class
+    constants: {}
+  fallback:
+    class_from_parent: true

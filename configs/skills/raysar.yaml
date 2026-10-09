@@ -1,0 +1,23 @@
+raysar:
+  name: RaySARSynthesisSkill
+  description: Physics-based SAR simulation through RaySAR-adapted POV-Ray and Python map post-processing.
+  raysar_root: myproject/raysar/RaySAR_1.2
+  source_dir: myproject/raysar/RaySAR_1.2/POV-Ray/POV-Ray_3.7_Source_Code_for_RaySAR/povray-3.7.0.0_for_raysar-loc_conwriter
+  adapted_povray: null
+  build_root: runs/raysar_build
+  auto_build: true
+  postprocess_module: myproject/raysar/RaySAR_1.2/MATLAB_part/Python_module/RaySAR_forbs
+  default_parameters_file: myproject/raysar/RaySAR_1.2/MATLAB_part/Python_module/parameters.txt
+  width: 512
+  height: 512
+  output_format: png
+  sar_output_data: true
+  sar_intersection: true
+  auto_fix_scene: true
+  orthographic_angle: 45
+  provide_minimal_includes: true
+  postprocess: true
+  make_jobs: 2
+  build_compiled_by: SAGA RaySAR skill
+  extra_library_paths: []
+  domain_gap_warning: true

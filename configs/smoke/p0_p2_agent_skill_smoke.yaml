@@ -1,0 +1,63 @@
+smoke_matrix:
+  schema_version: saga_smoke_matrix_config_v1
+  description: Lightweight P0/P2 smoke matrix for natural-language agent-run and heavy-skill protocol checks.
+  saga_config: configs/saga.yaml
+  execute: true
+  use_memory: false
+  sample_limit: 24
+  image_probe_limit: 24
+  bridge_sample_limit: 64
+  memory_dir: runs/smoke_memory
+
+  cases:
+    - id: traditional_fast_aug
+      request: "对 exampledataset/车辆数据-全极化/ZJGC-X 做快速传统SAR增广，生成4张"
+      expect:
+        task: traditional_augmentation
+        selected_skill: TraditionalAugmentationSkill
+        selected_recipe_task: traditional_augmentation
+
+    - id: diffusion_lora_polarization
+      request: "用 exampledataset/车辆数据-全极化/ZJGC-X 训练LoRA做有极化方式的扩散模型生成，后面的字母代表极化方式，pauli不作为数据集，生成4张，训练1轮"
+      expect:
+        task: diffusion_lora_generation
+        selected_skill: DiffusionLoRAGenerationSkill
+        selected_recipe_task: diffusion_lora_generation
+
+    - id: gan_fast_generation
+      request: "用 exampledataset/车辆数据-全极化/ZJGC-X 做GAN图生图快速生成，生成4张，训练1轮"
+      expect:
+        task: gan_generation
+        selected_skill: GANImageToImageSkill
+        selected_recipe_task: gan_generation
+
+    - id: style_transfer_b707_to_b747
+      request: "把 exampledataset/2_Boeing707-客机 作为指导图，将707的特征迁移到 exampledataset/B747 的数据上"
+      expect:
+        task: style_transfer
+        selected_skill: StyleTransferSkill
+        selected_recipe_task: style_transfer
+
+    - id: background_generation
+      request: "生成10张水体和道路混合的SAR背景图，不需要用户训练背景模型"
+      expect:
+        task: background_generation
+        selected_skill: BackgroundGenerationSkill
+        selected_recipe_task: background_generation
+
+    - id: raysar_sweep
+      request: "用 myproject/geodiff_components/raytracing/models/747.obj 做RaySAR物理仿真，方位角0和30，下视角20，生成2张"
+      expect:
+        task: raysar_synthesis
+        selected_skill: RaySARSweepSynthesisSkill
+        selected_recipe_task: raysar_synthesis
+
+    - id: geodiff_sar_sparse_azimuth
+      request: "用 myproject/qinglong_trainer_29b/train/dsine/747 作为真实SAR训练数据，用 myproject/geodiff_components/raytracing/models/747.obj 作为3D模型，使用GeoDiff-SAR做目标稀疏方位角补全，生成2张，方位角0和30，下视角20，训练1轮"
+      expect:
+        task: geodiff_sar_generation
+        selected_skill: GeoDiffSARSkill
+        selected_recipe_task: geodiff_sar_generation
+        recipe_inputs:
+          target_count: 2
+          training_epochs: 1

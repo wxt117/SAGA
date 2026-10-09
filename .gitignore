@@ -1,0 +1,48 @@
+# Research workspace and generated artifacts (kept locally, never published).
+myproject/
+exampledataset/
+runs/
+tmp/
+SAGA_elsevier.pdf
+
+# Python and tooling caches.
+__pycache__/
+*.py[cod]
+*.so
+.Python
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+.venv/
+venv/
+
+# Model checkpoints, experiment outputs, and local secrets.
+*.ckpt
+*.pth
+*.pt
+*.safetensors
+*.onnx
+*.bin
+*.npz
+*.npy
+*.parquet
+.env
+.env.*
+!.env.example
+
+# OS/editor files.
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Local smoke output.
+outputs/
+artifacts/
+examples/demo_dataset/

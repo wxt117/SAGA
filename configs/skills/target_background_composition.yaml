@@ -1,0 +1,21 @@
+target_background_composition:
+  name: TargetBackgroundCompositionSkill
+  description: SAR-aware deterministic target/background image fusion for scene composition.
+  target_count: 20
+  blend_mode: feather
+  mask_mode: auto
+  placement_policy: random
+  seed: 1026
+  output_image_format: png
+  target_scale_range: [0.65, 1.15]
+  target_fraction_range: [0.08, 0.32]
+  feather_radius: 9
+  mask_threshold_percentile: 82.0
+  mask_min_area_ratio: 0.002
+  mask_dilate: 2
+  mask_erode: 0
+  intensity_match: true
+  preserve_target_contrast: 0.85
+  poisson_clone_mode: normal
+  allow_partial_target: false
+  copy_sidecars: true

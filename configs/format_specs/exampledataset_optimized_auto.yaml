@@ -1,0 +1,86 @@
+format_spec:
+  name: exampledataset_optimized_auto
+  version: saga_format_spec_v1
+  description: Generated from SAGA format understanding. Validate before diagnosis.
+  rules:
+  - name: saga_inci_azim_pol_with_band
+    target: relative_path
+    pattern: ^(?:.+?/)?(?P<class>[^/（(]+)[（(](?P<class_description>.*?)[）)]/(?P<band>[^/]+)/inci-(?P<incidence>-?\d+(?:\.\d+)?)-azim-(?P<azimuth>-?\d+(?:\.\d+)?)-(?P<polarization>[A-Za-z0-9]+)\.[^.]+$
+    fields:
+      class: class
+      class_description: class_description
+      band: band
+      incidence: incidence_angle_deg
+      azimuth: azimuth_deg
+      polarization: polarization
+    constants: {}
+    confidence: 0.95
+    support_in_inspection: 95
+  - name: saga_inci_azim_pol_plain
+    target: relative_path
+    pattern: ^(?:.+?/)?(?P<class>[^/]+)/(?P<band>[^/]+)/inci-(?P<incidence>-?\d+(?:\.\d+)?)-azim-(?P<azimuth>-?\d+(?:\.\d+)?)-(?P<polarization>[A-Za-z0-9]+)\.[^.]+$
+    fields:
+      class: class
+      band: band
+      incidence: incidence_angle_deg
+      azimuth: azimuth_deg
+      polarization: polarization
+    constants: {}
+    confidence: 0.95
+    support_in_inspection: 95
+  - name: saga_elev_azim_pol
+    target: relative_path
+    pattern: ^(?:.+?/)?(?P<class>[^/]+)/elev-(?P<elevation>-?\d+(?:\.\d+)?)-azim-(?P<azimuth>-?\d+(?:\.\d+)?)_(?P<polarization>hh|hv|vh|vv|pauli)\.[^.]+$
+    fields:
+      class: class
+      elevation: elevation_angle_deg
+      azimuth: azimuth_deg
+      polarization: polarization
+    constants:
+      band: X
+    confidence: 0.582
+    support_in_inspection: 6
+  - name: saga_name_attr_azim_pol
+    target: relative_path
+    pattern: ^(?:.+?/)?(?P<class>[^/]+)/(?P<target_name>.+?)[(（](?P<target_attr>.*?)[)）]_(?P<azimuth>-?\d+(?:\.\d+)?)_(?P<polarization>hh|hv|vh|vv|pauli)\.[^.]+$
+    fields:
+      class: class
+      target_name: target_name
+      target_attr: target_serial_or_attr
+      azimuth: azimuth_deg
+      polarization: polarization
+    constants:
+      band: X
+    confidence: 0.707
+    support_in_inspection: 29
+  - name: saga_name_azim_pol
+    target: relative_path
+    pattern: ^(?:.+?/)?(?P<class>[^/]+)/(?P<target_name>[^/()（）]+)_(?P<azimuth>-?\d+(?:\.\d+)?)_(?P<polarization>hh|hv|vh|vv|pauli)\.[^.]+$
+    fields:
+      class: class
+      target_name: target_name
+      azimuth: azimuth_deg
+      polarization: polarization
+    constants:
+      band: X
+    confidence: 0.782
+    support_in_inspection: 43
+  - name: saga_sea_state_aircraft
+    target: relative_path
+    pattern: ^(?P<class>[^/]+)/海况(?P<sea_state>\d+)级_(?P<processing>[^_]+)_(?P<target_name_cn>.+?)[(（](?P<target_group>.*?)[)）]_(?P<param_1>-?\d+(?:\.\d+)?)_(?P<incidence>-?\d+(?:\.\d+)?)_(?P<azimuth>-?\d+(?:\.\d+)?)_(?P<resolution>-?\d+(?:\.\d+)?)_(?P<band>[A-Za-z0-9]+)\.[^.]+$
+    fields:
+      class: class
+      sea_state: sea_state
+      processing: processing
+      target_name_cn: target_name_cn
+      target_group: target_group
+      param_1: param_1
+      incidence: incidence_angle_deg
+      azimuth: azimuth_deg
+      resolution: resolution_m
+      band: band
+    constants: {}
+    confidence: 0.582
+    support_in_inspection: 6
+  fallback:
+    class_from_parent: true

@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If SAGA contributes to your work, please cite the paper and software."
+title: "SAGA: A Task-Driven and Quality-Assured Agent Framework for SAR Data Generation"
+authors:
+  - family-names: Wu
+    given-names: Xuanting
+  - family-names: Zhang
+    given-names: Fan
+  - family-names: Ma
+    given-names: Fei
+  - family-names: Guan
+    given-names: Ling
+  - family-names: Ma
+    given-names: Guochun
+  - family-names: Zhou
+    given-names: Yongsheng
+version: 0.1.0
+date-released: 2026-10-09
+repository-code: "https://github.com/wxt117/SAGA"
+license: MIT
+keywords:
+  - synthetic aperture radar
+  - data augmentation
+  - agent framework
+  - dataset profiling
